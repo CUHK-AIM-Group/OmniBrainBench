@@ -35,12 +35,12 @@ class Qwen2_5_VL:
             from models.Qwen2_5_VL.Qwen2_5_VL_hf import Qwen2_5_VL
         return Qwen2_5_VL(model_path, args)
 
-@LLMRegistry.register("Hulumed_qwen2")
+@LLMRegistry.register("Hulumed-qwen2")
 class Hulumed_qwen2:
     def __new__(cls, model_path: str, args: Any) -> Any:
         from models.HuluMed_Qwen2.HuluMed_Qwen2 import HuluMed_Qwen2
         return HuluMed_Qwen2(model_path, args)
-@LLMRegistry.register("Hulumed_qwen3")
+@LLMRegistry.register("Hulumed-qwen3")
 class Hulumed_qwen3:
     def __new__(cls, model_path: str, args: Any) -> Any:
         from models.HuluMed_Qwen3.HuluMed_Qwen3 import HuluMed_Qwen3
