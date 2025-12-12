@@ -35,6 +35,45 @@ class Qwen2_5_VL:
             from models.Qwen2_5_VL.Qwen2_5_VL_hf import Qwen2_5_VL
         return Qwen2_5_VL(model_path, args)
 
+@LLMRegistry.register("Hulumed_qwen2")
+class Hulumed_qwen2:
+    def __new__(cls, model_path: str, args: Any) -> Any:
+        from models.HuluMed_Qwen2.HuluMed_Qwen2 import HuluMed_Qwen2
+        return HuluMed_Qwen2(model_path, args)
+@LLMRegistry.register("Hulumed_qwen3")
+class Hulumed_qwen3:
+    def __new__(cls, model_path: str, args: Any) -> Any:
+        from models.HuluMed_Qwen3.HuluMed_Qwen3 import HuluMed_Qwen3
+        return HuluMed_Qwen3(model_path, args)
+    
+@LLMRegistry.register("Qwen3-VL") 
+class Qwen3_VL:
+    def __new__(cls, model_path: str, args: Any) -> Any:
+        if os.environ.get("use_vllm", "True") == "True":
+            from models.Qwen3_VL.Qwen3_VL_vllm import Qwen3_VL
+        else:
+            from models.Qwen3_VL.Qwen3_VL_hf import Qwen3_VL
+        return Qwen3_VL(model_path, args)
+
+@LLMRegistry.register("Qwen3-VL-Moe") 
+class Qwen3_VL_Moe:
+    def __new__(cls, model_path: str, args: Any) -> Any:
+        if os.environ.get("use_vllm", "True") == "True":
+            from models.Qwen3_VL.Qwen3_VL_moe_hf import Qwen3_VL
+        else:
+            from models.Qwen3_VL.Qwen3_VL_moe_hf import Qwen3_VL
+        return Qwen3_VL(model_path, args)
+
+@LLMRegistry.register("Lingshu") 
+class Lingshu:
+    def __new__(cls, model_path: str, args: Any) -> Any:
+        if os.environ.get("use_vllm", "True") == "True":
+            from models.Qwen2_5_VL.Qwen2_5_VL_vllm import Qwen2_5_VL
+        else:
+            from models.Qwen2_5_VL.Qwen2_5_VL_hf import Qwen2_5_VL
+        return Qwen2_5_VL(model_path, args)
+
+
 @LLMRegistry.register("BiMediX2")
 class BiMediX2:
     def __new__(cls, model_path: str, args: Any) -> Any:
@@ -139,6 +178,13 @@ class MedDr:
     def __new__(cls, model_path: str, args: Any) -> Any:
         from models.MedDr.MedDr import MedDr
         return MedDr(model_path, args)
+
+@LLMRegistry.register("GPT_Openai")
+class GPT_Openai:
+    def __new__(cls, model_name: str, args: Any) -> Any:
+        from models.GPT_Openai.GPT_model import GPT_model
+        return GPT_model(model_name, args)
+
 
 def init_llm(args):
     try:

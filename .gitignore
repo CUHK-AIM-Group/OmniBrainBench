@@ -1,1 +1,6 @@
 *pyc
+LlaVA-NeXT
+old
+*.xlsx
+eval_results/
+eval_*/

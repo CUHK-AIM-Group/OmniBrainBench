@@ -1,15 +1,29 @@
 #!/bin/bash
-export HF_ENDPOINT=https://hf-mirror.com
-# MMMU-Medical-test,MMMU-Medical-val,PMC_VQA,MedQA_USMLE,MedMCQA,PubMedQA,OmniMedVQA,Medbullets_op4,Medbullets_op5,MedXpertQA-Text,MedXpertQA-MM,SuperGPQA,HealthBench,IU_XRAY,CheXpert_Plus,MIMIC_CXR,CMB,CMExam,CMMLU,MedQA_MCMLE,VQA_RAD,SLAKE,PATH_VQA,MedFrameQA
-EVAL_DATASETS="Medbullets_op4" 
-DATASETS_PATH="hf"
-OUTPUT_PATH="eval_results/{}"
-# TestModel,Qwen2-VL,Qwen2.5-VL,BiMediX2,LLava_Med,Huatuo,InternVL,Llama-3.2,LLava,Janus,HealthGPT,BiomedGPT,Vllm_Text,MedGemma,Med_Flamingo,MedDr
-MODEL_NAME="Qwen2.5-VL"
-MODEL_PATH="Qwen2.5-VL-7B-Instruct"
+# export HF_ENDPOINT=https://hf-mirror.com
+export HF_HOME=/data_hdd/syliu/workspace/Med-VLM/hf-checkpoints
+export HF_DATASETS_CACHE=/data_hdd/syliu/workspace/Med-VLM/Datasets
 
-#vllm setting
-CUDA_VISIBLE_DEVICES="0"
+# if use close-set evaluation or LLM-as-a-judge, set your openai api key and base url here
+export OPENAI_API_KEY="your_openai_api_key"
+export OPENAI_BASE_URL="your_openai_base_url"
+
+#if close-set evaluation: OmniBrainBench, if open-set evaluation: OmniBrainBench-Open
+EVAL_DATASETS="OmniBrainBench-Open"
+DATASETS_PATH="/data_hdd/syliu/workspace/Med-VLM/Datasets/"
+
+#For open-source models, you can choose from the following models:
+#TestModel,Qwen3-VL, Qwen3-VL-Moe, Qwen2-VL,Qwen2.5-VL,BiMediX2,LLava_Med,Huatuo,InternVL,Llama-3.2,LLava,Janus,BiomedGPT,Vllm_Text,MedGemma,Med_Flamingo,MedDr,Hulumed-qwen3, Hulumed-qwen2.
+#For commercial models, please set MODEL_NAME=GPT_Openai
+MODEL_NAME="Qwen2.5-VL"
+MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct" #商用模型时是Model—name
+OUTPUT_PATH="eval_results/Qwen2.5-VL-3B"
+CUDA_VISIBLE_DEVICES="4"
+
+# MODEL_NAME="Qwen2.5-VL"
+# MODEL_PATH="/data_hdd/syliu/workspace/Med-VLM/hf-checkpoints/models--lingshu-medical-mllm--Lingshu-7B" #商用模型时是Model—name
+# OUTPUT_PATH="eval_results/Lingshu-7B"
+# CUDA_VISIBLE_DEVICES="5"
+
 TENSOR_PARALLEL_SIZE="1"
 USE_VLLM="False"
 

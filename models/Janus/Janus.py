@@ -4,6 +4,7 @@ from tqdm import tqdm
 from transformers import AutoModelForCausalLM
 from janus.models import MultiModalityCausalLM, VLChatProcessor
 from janus.utils.io import load_pil_images
+from PIL import Image
 
 class Janus:
     def __init__(self,model_path,args):
@@ -57,7 +58,33 @@ class Janus:
               {"role": "<|Assistant|>", "content": ""},
           ]
         conversation = new_messages
-        pil_images = load_pil_images(conversation)
+        
+        # Check if images are already PIL Image objects or file paths
+        # If they are PIL Image objects, use them directly; otherwise load them
+        has_images = any("images" in msg for msg in conversation)
+        if has_images:
+            # Check the type of the first image in the first message with images
+            for msg in conversation:
+                if "images" in msg and len(msg["images"]) > 0:
+                    first_image = msg["images"][0]
+                    if isinstance(first_image, Image.Image):
+                        # Images are already PIL Image objects
+                        pil_images = []
+                        for msg in conversation:
+                            if "images" in msg:
+                                for img in msg["images"]:
+                                    if isinstance(img, Image.Image):
+                                        pil_images.append(img.convert("RGB"))
+                                    else:
+                                        # Fallback: treat as file path
+                                        pil_images.append(Image.open(img).convert("RGB"))
+                    else:
+                        # Images are file paths or base64 strings, use load_pil_images
+                        pil_images = load_pil_images(conversation)
+                    break
+        else:
+            pil_images = []
+        
         prepare_inputs = self.processor(
             conversations=conversation, images=pil_images, force_batchify=True
         ).to(self.llm.device)

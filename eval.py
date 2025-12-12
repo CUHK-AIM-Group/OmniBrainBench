@@ -7,6 +7,9 @@ import json
 from argparse import ArgumentParser
 from LLMs import init_llm
 import gc
+import multiprocessing
+import sys
+import traceback
 
 def set_seed(seed_value):
     """
@@ -100,34 +103,83 @@ def main():
     os.makedirs(args.output_path, exist_ok=True)
 
     print('initializing LLM...')
-    model = init_llm(args)
+    try:
+        model = init_llm(args)
+    except Exception as e:
+        print(f"\n{'='*80}")
+        print(f"ERROR: Failed to initialize LLM")
+        print(f"{'='*80}")
+        print(f"Error message: {str(e)}")
+        print(f"\nFull traceback:")
+        print(traceback.format_exc())
+        print(f"{'='*80}\n")
+        sys.exit(1)
     
     total_results_path = os.path.join(args.output_path,'total_results.json')
 
     from benchmarks import prepare_benchmark
 
     for eval_dataset in tqdm(args.eval_datasets):
-        set_seed(args.seed)
-        print(f'evaluating on {eval_dataset}...')
+        try:
+            set_seed(args.seed)
+            print(f'evaluating on {eval_dataset}...')
 
-        eval_dataset_path = os.path.join(args.datasets_path,eval_dataset) if args.datasets_path != "hf" else None
-        eval_output_path = os.path.join(args.output_path,eval_dataset)
-        os.makedirs(eval_output_path, exist_ok=True)
-        benchmark = prepare_benchmark(model,eval_dataset,eval_dataset_path,eval_output_path)
-        benchmark.load_data()
-        final_results = benchmark.eval() if benchmark else {}
-        print(f'final results on {eval_dataset}: {final_results}')
-        if final_results is not None:
-            if os.path.exists(total_results_path):
-                with open (total_results_path,"r") as f:
-                    total_results = json.load(f)
-            else:
-                total_results = {}
-            total_results[eval_dataset] = final_results
+            eval_dataset_path = os.path.join(args.datasets_path,eval_dataset) if args.datasets_path != "hf" else None
+            eval_output_path = os.path.join(args.output_path,eval_dataset)
+            os.makedirs(eval_output_path, exist_ok=True)
+            
+            try:
+                benchmark = prepare_benchmark(model,eval_dataset,eval_dataset_path,eval_output_path)
+                benchmark.load_data()
+            except Exception as e:
+                print(f"\n{'='*80}")
+                print(f"ERROR: Failed to prepare benchmark for {eval_dataset}")
+                print(f"{'='*80}")
+                print(f"Error message: {str(e)}")
+                print(f"\nFull traceback:")
+                print(traceback.format_exc())
+                print(f"{'='*80}\n")
+                continue
+            
+            try:
+                final_results = benchmark.eval() if benchmark else {}
+                print(f'final results on {eval_dataset}: {final_results}')
+            except Exception as e:
+                print(f"\n{'='*80}")
+                print(f"ERROR: Failed during evaluation of {eval_dataset}")
+                print(f"{'='*80}")
+                print(f"Error message: {str(e)}")
+                print(f"\nFull traceback:")
+                print(traceback.format_exc())
+                print(f"{'='*80}\n")
+                final_results = None
+                
+            if final_results is not None:
+                if os.path.exists(total_results_path):
+                    with open (total_results_path,"r") as f:
+                        total_results = json.load(f)
+                else:
+                    total_results = {}
+                total_results[eval_dataset] = final_results
 
             with open(os.path.join(args.output_path,'total_results.json'),'w') as f:
                 json.dump(total_results,f,indent=4)
         gc.collect()
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n{'='*80}")
+        print("Program interrupted by user")
+        print(f"{'='*80}\n")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n{'='*80}")
+        print(f"FATAL ERROR: Program crashed")
+        print(f"{'='*80}")
+        print(f"Error message: {str(e)}")
+        print(f"\nFull traceback:")
+        print(traceback.format_exc())
+        print(f"{'='*80}\n")
+        sys.exit(1)
