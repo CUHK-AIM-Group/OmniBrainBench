@@ -10,7 +10,7 @@ from datasets import load_dataset,load_from_disk
 from collections import defaultdict
 from tqdm import tqdm
 
-# 评估指标相关导入
+# Evaluation metrics related imports
 from rouge_score import rouge_scorer
 from bert_score import BERTScorer
 import nltk
@@ -21,11 +21,11 @@ from ..base_dataset import BaseDataset
 
 from ..question_formats import get_multiple_choice_prompt, get_open_ended_prompt
 
-# 配置日志
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 下载必要的NLTK数据
+# Download necessary NLTK data
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -42,21 +42,21 @@ class OmniBrainBench(BaseDataset):
         self.num_chunks = int(os.environ.get("num_chunks",1))
         self.openset = openset
         
-        # 初始化评估器（仅在openset模式下）
+        # Initialize evaluators (only in openset mode)
         self.evaluators = {}
         if self.openset:
             self._initialize_evaluators()
     
     def _initialize_evaluators(self):
-        """初始化各种评估器"""
-        # ROUGE评估器
+        """Initialize various evaluators"""
+        # ROUGE evaluator
         try:
             self.evaluators['rouge'] = rouge_scorer.RougeScorer(['rouge1', 'rougeL'], use_stemmer=True)
             logger.info("ROUGE scorer initialized successfully")
         except Exception as e:
             logger.warning(f"Failed to initialize ROUGE: {e}")
         
-        # BERTScore评估器
+        # BERTScore evaluator
         try:
             self.evaluators['bertscore'] = BERTScorer(model_type='microsoft/deberta-xlarge-mnli', lang='en', rescale_with_baseline=True)
             logger.info("BERTScore scorer initialized successfully")
@@ -64,7 +64,7 @@ class OmniBrainBench(BaseDataset):
             logger.warning(f"Failed to initialize BERTScore: {e}")
     
     def _compute_rouge_metrics(self, reference, hypothesis):
-        """计算ROUGE1和ROUGEL指标"""
+        """Calculate ROUGE1 and ROUGEL metrics"""
         if 'rouge' not in self.evaluators:
             return {'rouge1': 0.0, 'rougeL': 0.0}
         
@@ -79,7 +79,7 @@ class OmniBrainBench(BaseDataset):
             return {'rouge1': 0.0, 'rougeL': 0.0}
     
     def _compute_bleu_metrics(self, reference, hypothesis):
-        """计算BLEU指标 - 改进版本"""
+        """Calculate BLEU metrics - improved version"""
         try:
             ref_tokens = [reference.split()]
             hyp_tokens = hypothesis.split()
@@ -87,64 +87,64 @@ class OmniBrainBench(BaseDataset):
             if len(hyp_tokens) == 0 or len(ref_tokens[0]) == 0:
                 return {'bleu': 0.0}
             
-            # 根据文本长度选择合适的权重
+            # Choose appropriate weights based on text length
             if len(hyp_tokens) <= 2:
-                weights = (1.0, 0, 0, 0)  # 只使用1-gram
+                weights = (1.0, 0, 0, 0)  # Use only 1-gram
             elif len(hyp_tokens) <= 4:
-                weights = (0.5, 0.5, 0, 0)  # 使用1-gram和2-gram
+                weights = (0.5, 0.5, 0, 0)  # Use 1-gram and 2-gram
             else:
-                weights = (0.25, 0.25, 0.25, 0.25)  # 标准4-gram
+                weights = (0.25, 0.25, 0.25, 0.25)  # Standard 4-gram
             
             smoothie = SmoothingFunction().method4
             bleu_score = sentence_bleu(ref_tokens, hyp_tokens, 
                                       weights=weights, 
                                       smoothing_function=smoothie)
             
-            return {'bleu': min(bleu_score, 1.0)}  # 确保不超过1.0
+            return {'bleu': min(bleu_score, 1.0)}  # Ensure not exceeding 1.0
         except Exception as e:
             logger.warning(f"BLEU computation failed: {e}")
             return {'bleu': 0.0}
     
     def _compute_bertscore_metrics(self, reference, hypothesis):
-        """计算BERTScore指标"""
+        """Calculate BERTScore metrics"""
         if 'bertscore' not in self.evaluators:
             return {'bertscore': 0.0}
         
         try:
             P, R, F1 = self.evaluators['bertscore'].score([hypothesis], [reference])
-            return {'bertscore': F1.item()}  # 使用F1分数
+            return {'bertscore': F1.item()}  # Use F1 score
         except Exception as e:
             logger.warning(f"BERTScore computation failed: {e}")
             return {'bertscore': 0.0}
     
     def _compute_exact_match(self, reference, hypothesis):
-        """计算精确匹配"""
+        """Calculate exact match"""
         return 1.0 if reference.strip().lower() == hypothesis.strip().lower() else 0.0
     
     def _comprehensive_text_evaluation(self, reference, hypothesis):
-        """综合文本评估 - 4种指标"""
+        """Comprehensive text evaluation - 4 metrics"""
         metrics = {}
         
-        # 基础指标
+        # Basic metrics
         metrics['exact_match'] = self._compute_exact_match(reference, hypothesis)
         
-        # 4种要求的评估指标
-        # 1-2. ROUGE指标
+        # 4 required evaluation metrics
+        # 1-2. ROUGE metrics
         rouge_metrics = self._compute_rouge_metrics(reference, hypothesis)
         metrics.update(rouge_metrics)
         
-        # 3. BLEU指标
+        # 3. BLEU metrics
         bleu_metrics = self._compute_bleu_metrics(reference, hypothesis)
         metrics.update(bleu_metrics)
         
-        # 4. BERTScore指标
+        # 4. BERTScore metrics
         bertscore_metrics = self._compute_bertscore_metrics(reference, hypothesis)
         metrics.update(bertscore_metrics)
         
         return metrics
     
     def _compute_statistics(self, scores):
-        """计算统计信息：最大值、最小值、平均值、标准差"""
+        """Calculate statistics: max, min, mean, standard deviation"""
         if not scores:
             return {
                 'max': 0.0,
@@ -165,22 +165,22 @@ class OmniBrainBench(BaseDataset):
     
     def resize_image_if_needed(self, img, max_size=1280):
         """
-        如果图像的宽或高大于max_size，按照长宽比进行resize
+        Resize image if width or height exceeds max_size, maintaining aspect ratio
         
         Args:
-            img: PIL Image对象
-            max_size: 最大尺寸限制，默认1280
+            img: PIL Image object
+            max_size: Maximum size limit, default 1280
 
         Returns:
-            调整后的PIL Image对象
+            Resized PIL Image object
         """
         width, height = img.size
         
-        # 检查是否需要resize
+        # Check if resize is needed
         if width <= max_size and height <= max_size:
             return img
         
-        # 计算缩放比例，保持长宽比
+        # Calculate scale ratio, maintaining aspect ratio
         if width > height:
             scale = max_size / width
         else:
@@ -189,14 +189,14 @@ class OmniBrainBench(BaseDataset):
         new_width = int(width * scale)
         new_height = int(height * scale)
         
-        # 使用高质量的resize方法
+        # Use high quality resize method
         resized_img = img.resize((new_width, new_height), Image.LANCZOS)
         print(f"[INFO] Resized image from ({width}, {height}) to ({new_width}, {new_height})")
         
         return resized_img
         
     def run(self, samples, model, batch_size=2000):
-        """重写BaseDataset的run方法，添加图像resize功能，逐个处理避免图像累积"""
+        """Override BaseDataset's run method, add image resize functionality, process one by one to avoid image accumulation"""
         out_samples = []
         print(f"[INFO] Running model on {len(samples)} samples")
         
@@ -359,12 +359,12 @@ class OmniBrainBench(BaseDataset):
         total_clinical_phase_type = defaultdict(int)
         right_clinical_phase_type = defaultdict(int)
         
-        # 区分选择题和开放式问题
+        # Differentiate between multiple choice and open-ended questions
         if self.openset:
-            # 使用与recompute_open_metrics.py一致的格式
+            # Use format consistent with recompute_open_metrics.py
             logger.info(f"Computing metrics for {len(out_samples)} samples with 4 evaluation metrics")
             
-            # 初始化metrics结构（与recompute_open_metrics.py一致）
+            # Initialize metrics structure (consistent with recompute_open_metrics.py)
             metrics = {
                 "total_samples": len(out_samples),
                 "accuracy": 0.0,
@@ -381,21 +381,21 @@ class OmniBrainBench(BaseDataset):
                     "bertscore": 0.0
                 },
                 "sample_details": [],
-                # 保留原有的任务类型和临床阶段统计
+                # Keep original task type and clinical phase statistics
                 "total metrics": {
                     "total": 0,
                     "right": 0
                 }
             }
             
-            # 用于收集所有样本的分数
+            # Collect scores from all samples
             rouge1_scores = []
             rougeL_scores = []
             bleu_scores = []
             bertscore_scores = []
             exact_match_scores = []
             
-            # 开放式问题评估
+            # Open-ended question evaluation
             messages_list = []
             open_id = []
             
@@ -411,10 +411,10 @@ class OmniBrainBench(BaseDataset):
                 total_clinical_phase_type[clinical_phase_type] += 1
                 metrics["total metrics"]["total"] += 1
                 
-                # 使用新的4种指标评估
+                # Use new 4-metric evaluation
                 text_metrics = self._comprehensive_text_evaluation(answer, response)
                 
-                # 保存样本级别的metrics（与recompute_open_metrics.py一致）
+                # Save sample-level metrics (consistent with recompute_open_metrics.py)
                 sample_detail = {
                     "id": sample.get("id", i),
                     "response": response,
@@ -423,11 +423,11 @@ class OmniBrainBench(BaseDataset):
                 }
                 metrics["sample_details"].append(sample_detail)
                 
-                # 保存到原样本中（向后兼容）
+                # Save to original sample (backward compatible)
                 out_samples[i]["correct"] = text_metrics["exact_match"] == 1.0
                 out_samples[i]["metrics"] = text_metrics
                 
-                # 收集各指标分数
+                # Collect metric scores
                 if 'rouge1' in text_metrics:
                     rouge1_scores.append(text_metrics['rouge1'])
                 if 'rougeL' in text_metrics:
@@ -439,23 +439,23 @@ class OmniBrainBench(BaseDataset):
                 if 'exact_match' in text_metrics:
                     exact_match_scores.append(text_metrics['exact_match'])
                 
-                # 根据EM指标统计准确率（向后兼容）
+                # Calculate accuracy based on EM metric (backward compatible)
                 if text_metrics["exact_match"] == 1.0:
                     metrics["total metrics"]["right"] += 1
                     right_task_type[task_type] += 1
                     right_clinical_phase_type[clinical_phase_type] += 1
                 
-                # 如果使用LLM评判，准备消息列表
+                # If using LLM judge, prepare message list
                 if os.environ.get("use_llm_judge", "False") == "True":
                     messages = get_compare_messages(question, response, answer)
                     messages_list.append(messages)
                     open_id.append(i)
             
-            # 使用LLM评判（如果启用）
+            # Use LLM judge (if enabled)
             if os.environ.get("use_llm_judge", "False") == "True":
                 logger.info("Using LLM judge for evaluation")
                 metrics["total metrics"]["right"] = 0
-                # 重置task_type和clinical_phase_type的right计数
+                # Reset right counts for task_type and clinical_phase_type
                 right_task_type = defaultdict(int)
                 right_clinical_phase_type = defaultdict(int)
                 
@@ -474,27 +474,27 @@ class OmniBrainBench(BaseDataset):
                         right_task_type[task_type] += 1
                         right_clinical_phase_type[clinical_phase_type] += 1
             
-            # 计算总体准确率（与recompute_open_metrics.py一致）
+            # Calculate overall accuracy (consistent with recompute_open_metrics.py)
             metrics["accuracy"] = sum(exact_match_scores) / len(exact_match_scores) if exact_match_scores else 0.0
             metrics["total metrics"]["acc"] = metrics["accuracy"]
             
-            # 计算每个指标的统计信息（与recompute_open_metrics.py一致）
+            # Calculate statistics for each metric (consistent with recompute_open_metrics.py)
             metrics["metrics_summary"]["rouge1"] = self._compute_statistics(rouge1_scores)
             metrics["metrics_summary"]["rougeL"] = self._compute_statistics(rougeL_scores)
             metrics["metrics_summary"]["bleu"] = self._compute_statistics(bleu_scores)
             metrics["metrics_summary"]["bertscore"] = self._compute_statistics(bertscore_scores)
             
-            # 计算five_metrics的均值（与recompute_open_metrics.py一致）
+            # Calculate mean values for five_metrics (consistent with recompute_open_metrics.py)
             metrics["five_metrics"]["rouge1"] = metrics["metrics_summary"]["rouge1"]["mean"]
             metrics["five_metrics"]["rougeL"] = metrics["metrics_summary"]["rougeL"]["mean"]
             metrics["five_metrics"]["bleu"] = metrics["metrics_summary"]["bleu"]["mean"]
             metrics["five_metrics"]["bertscore"] = metrics["metrics_summary"]["bertscore"]["mean"]
             
-            # 新增：计算所有指标的综合均值（排除gpt_judge）
+            # New: Calculate comprehensive average of all metrics (excluding gpt_judge)
             valid_metrics = [v for k, v in metrics["five_metrics"].items() if k != "gpt_judge"]
             metrics["five_metrics"]["average_metric"] = sum(valid_metrics) / len(valid_metrics) if valid_metrics else 0.0
             
-            # 打印摘要
+            # Print summary
             logger.info(f"Total Accuracy: {metrics['accuracy']:.4f}")
             logger.info("4 Evaluation Metrics Mean Values:")
             for metric_name, metric_value in metrics["five_metrics"].items():
@@ -510,7 +510,7 @@ class OmniBrainBench(BaseDataset):
                 logger.info(f"      Count: {stats['count']}")
         
         else:
-            # 选择题评估（原有逻辑）
+            # Multiple choice evaluation (original logic)
             metrics = {
                 "total metrics": {
                     "total": 0,
@@ -539,7 +539,7 @@ class OmniBrainBench(BaseDataset):
             
             metrics["total metrics"]["acc"] = metrics["total metrics"]["right"] / metrics["total metrics"]["total"] if metrics["total metrics"]["total"] > 0 else 0
         
-        # 计算任务类型和临床阶段的指标（两种模式都需要）
+        # Calculate task type and clinical phase metrics (needed for both modes)
         task_type_metrics = {}
         for key, value in total_task_type.items():
             right_cnt = right_task_type[key]
@@ -556,7 +556,7 @@ class OmniBrainBench(BaseDataset):
         return metrics, out_samples
     
     def eval(self):
-        """覆盖父类的eval方法，在openset模式下额外保存open_metrics.json"""
+        """Override parent eval method, save additional open_metrics.json in openset mode"""
         model = self.model
         dataset_path = self.dataset_path
         output_path = self.output_path
@@ -574,10 +574,10 @@ class OmniBrainBench(BaseDataset):
             save_json(metric_path, metrics)
             save_json(results_path, out_samples)
             
-            # 如果是openset模式，额外保存open_metrics.json（与recompute_open_metrics.py格式一致）
+            # If in openset mode, additionally save open_metrics.json (consistent with recompute_open_metrics.py format)
             if self.openset:
                 open_metrics_path = os.path.join(output_path, "open_metrics.json")
-                # 提取与recompute_open_metrics.py一致的格式
+                # Extract format consistent with recompute_open_metrics.py
                 open_metrics = {
                     "total_samples": metrics.get("total_samples", 0),
                     "accuracy": metrics.get("accuracy", 0.0),
@@ -612,10 +612,10 @@ class OmniBrainBench(BaseDataset):
                 save_json(metric_path, metrics)
                 save_json(final_results_path, out_samples)
                 
-                # 如果是openset模式，额外保存open_metrics.json（与recompute_open_metrics.py格式一致）
+                # If in openset mode, additionally save open_metrics.json (consistent with recompute_open_metrics.py format)
                 if self.openset:
                     open_metrics_path = os.path.join(output_path, "open_metrics.json")
-                    # 提取与recompute_open_metrics.py一致的格式
+                    # Extract format consistent with recompute_open_metrics.py
                     open_metrics = {
                         "total_samples": metrics.get("total_samples", 0),
                         "accuracy": metrics.get("accuracy", 0.0),

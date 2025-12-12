@@ -3,7 +3,7 @@
 export HF_HOME=/data_hdd/syliu/workspace/Med-VLM/hf-checkpoints
 export HF_DATASETS_CACHE=/data_hdd/syliu/workspace/Med-VLM/Datasets
 
-# if use close-set evaluation or LLM-as-a-judge, set your openai api key and base url here
+# if use close-set evaluation, set your openai api key and base url here
 export OPENAI_API_KEY="your_openai_api_key"
 export OPENAI_BASE_URL="your_openai_base_url"
 
@@ -15,19 +15,14 @@ DATASETS_PATH="/data_hdd/syliu/workspace/Med-VLM/Datasets/"
 #TestModel,Qwen3-VL, Qwen3-VL-Moe, Qwen2-VL,Qwen2.5-VL,BiMediX2,LLava_Med,Huatuo,InternVL,Llama-3.2,LLava,Janus,BiomedGPT,Vllm_Text,MedGemma,Med_Flamingo,MedDr,Hulumed-qwen3, Hulumed-qwen2.
 #For commercial models, please set MODEL_NAME=GPT_Openai
 MODEL_NAME="Qwen2.5-VL"
-MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct" #商用模型时是Model—name
+MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct" # For commercial models, this is Model_name
 OUTPUT_PATH="eval_results/Qwen2.5-VL-3B"
 CUDA_VISIBLE_DEVICES="4"
-
-# MODEL_NAME="Qwen2.5-VL"
-# MODEL_PATH="/data_hdd/syliu/workspace/Med-VLM/hf-checkpoints/models--lingshu-medical-mllm--Lingshu-7B" #商用模型时是Model—name
-# OUTPUT_PATH="eval_results/Lingshu-7B"
-# CUDA_VISIBLE_DEVICES="5"
 
 TENSOR_PARALLEL_SIZE="1"
 USE_VLLM="False"
 
-#Eval setting
+#Eval setting 
 SEED=42
 REASONING="False"
 TEST_TIMES=1
@@ -43,9 +38,8 @@ REPETITION_PENALTY=1
 # LLM judge setting
 USE_LLM_JUDGE="True"
 # gpt api model name
-GPT_MODEL="gpt-4.1-2025-04-14"
-OPENAI_API_KEY=""
-
+GPT_MODEL="gpt-5-mini-2025-08-07"
+OPENAI_API_KEY="your_openai_api_key"
 
 # pass hyperparameters and run python sccript
 python eval.py \

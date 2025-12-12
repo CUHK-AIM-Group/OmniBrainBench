@@ -7,7 +7,7 @@ import openpyxl
 base_folder = '/data_hdd/syliu/workspace/Med-VLM/MedEvalKit/eval_results'
 
 def collect_all_data():
-    """收集所有模型的数据"""
+    """Collect data from all models"""
     all_data = {}
     all_task_types = set()
     all_clinical_phases = set()
@@ -17,14 +17,14 @@ def collect_all_data():
     for model_name in models_name:
         model_folder = os.path.join(base_folder, model_name)
         
-        # 检查是否是文件夹
+        # Check if it's a directory
         if not os.path.isdir(model_folder):
             continue
         
-        # 检查是否存在OmniBrainBench子文件夹，如果不存在则跳过
+        # Check if OmniBrainBench subfolder exists, skip if not
         omnibrain_folder = os.path.join(model_folder, 'OmniBrainBench')
         if not os.path.exists(omnibrain_folder):
-            print(f"[SKIP] {model_name}: 没有OmniBrainBench子文件夹")
+            print(f"[SKIP] {model_name}: No OmniBrainBench subfolder")
             continue
         
         metric_file = os.path.join(model_folder, 'total_results.json')
@@ -39,11 +39,11 @@ def collect_all_data():
             task_type_metrics = metrics['task type metrics']
             clinical_phase_type_metrics = metrics['clinical phase type metrics']
             
-            # 收集所有task type和clinical phase类别
+            # Collect all task types and clinical phase categories
             all_task_types.update(task_type_metrics.keys())
             all_clinical_phases.update(clinical_phase_type_metrics.keys())
             
-            # 保存模型数据
+            # Save model data
             all_data[model_name] = {
                 'total_acc': total_metrics['acc'],
                 'task_types': task_type_metrics,
@@ -53,27 +53,27 @@ def collect_all_data():
     return all_data, sorted(all_task_types), sorted(all_clinical_phases)
 
 def create_excel_report():
-    """创建Excel报告"""
-    # 收集数据
+    """Create Excel report"""
+    # Collect data
     all_data, task_types, clinical_phases = collect_all_data()
     
-    # 创建列名
+    # Create column names
     columns = ['Model Name', 'Total Accuracy']
     
-    # 添加task type列
+    # Add task type columns
     for task_type in task_types:
         columns.append(task_type)
     
-    # 添加clinical phase列
+    # Add clinical phase columns
     for clinical_phase in clinical_phases:
         columns.append(clinical_phase)
     
-    # 创建DataFrame
+    # Create DataFrame
     rows = []
     for model_name, data in all_data.items():
         row = [model_name, round(data['total_acc'], 4)]
         
-        # 添加task type准确率
+        # Add task type accuracy
         for task_type in task_types:
             if task_type in data['task_types']:
                 acc = data['task_types'][task_type]['acc']
@@ -81,7 +81,7 @@ def create_excel_report():
             else:
                 row.append('N/A')
         
-        # 添加clinical phase准确率
+        # Add clinical phase accuracy
         for clinical_phase in clinical_phases:
             if clinical_phase in data['clinical_phases']:
                 acc = data['clinical_phases'][clinical_phase]['acc']
@@ -91,25 +91,25 @@ def create_excel_report():
         
         rows.append(row)
     
-    # 创建DataFrame
+    # Create DataFrame
     df = pd.DataFrame(rows, columns=columns)
     
-    # 按总准确率排序
+    # Sort by total accuracy
     df = df.sort_values('Total Accuracy', ascending=False)
     
     return df
 
 def save_to_excel(df, filename='model_evaluation_results_20251126.xlsx'):
-    """保存到Excel文件"""
-    # 获取task types和clinical phases用于分表
+    """Save to Excel file"""
+    # Get task types and clinical phases for separate sheets
     _, task_types, clinical_phases = collect_all_data()
     
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
-        # 保存主表
+        # Save main sheet
         df.to_excel(writer, sheet_name='All Results', index=False)
         
-        # 创建分别的task type和clinical phase表
-        # 使用集合来准确匹配列名
+        # Create separate task type and clinical phase sheets
+        # Use sets to accurately match column names
         task_type_set = set(task_types)
         clinical_phase_set = set(clinical_phases)
         
@@ -119,11 +119,11 @@ def save_to_excel(df, filename='model_evaluation_results_20251126.xlsx'):
         df[task_cols].to_excel(writer, sheet_name='Task Types', index=False)
         df[phase_cols].to_excel(writer, sheet_name='Clinical Phases', index=False)
         
-        # 格式化工作表
+        # Format worksheets
         for sheet_name in writer.sheets:
             worksheet = writer.sheets[sheet_name]
             
-            # 调整列宽
+            # Adjust column width
             for column in worksheet.columns:
                 max_length = 0
                 column_letter = column[0].column_letter
@@ -136,20 +136,20 @@ def save_to_excel(df, filename='model_evaluation_results_20251126.xlsx'):
                 adjusted_width = min(max_length + 2, 50)
                 worksheet.column_dimensions[column_letter].width = adjusted_width
     
-    print(f"Excel文件已保存为: {filename}")
+    print(f"Excel file saved as: {filename}")
 
 if __name__ == "__main__":
-    # 生成Excel报告
+    # Generate Excel report
     df = create_excel_report()
     save_to_excel(df)
     
-    # 获取task types和clinical phases用于统计
+    # Get task types and clinical phases for statistics
     _, task_types, clinical_phases = collect_all_data()
     
-    # 显示预览
-    print("\n=== 模型评估结果预览 ===")
+    # Display preview
+    print("\n=== Model Evaluation Results Preview ===")
     print(df.to_string(index=False, max_cols=5))
-    print(f"\n总共包含 {len(df)} 个模型")
-    print(f"Task类型数量: {len(task_types)}")
-    print(f"Clinical Phase类型数量: {len(clinical_phases)}")
+    print(f"\nTotal models: {len(df)}")
+    print(f"Number of task types: {len(task_types)}")
+    print(f"Number of clinical phase types: {len(clinical_phases)}")
             

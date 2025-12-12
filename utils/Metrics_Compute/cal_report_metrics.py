@@ -68,6 +68,8 @@ for dataset in datasets:
         total_meteor_scores = 0
 
         messages_list = []
+        # Create smoothing function instance to avoid warnings when n-gram overlap is 0
+        smoothing = SmoothingFunction().method3
         for sample in tqdm(datas):
                 response = sample["response"]
                 if response == "":
