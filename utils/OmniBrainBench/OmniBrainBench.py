@@ -266,11 +266,11 @@ class OmniBrainBench(BaseDataset):
         datasets = []
 
         if self.openset:
-            json_path = os.path.join(dataset_path, "open-ended-qa_2704_5.json")
+            json_path = os.path.join(dataset_path, "open-ended-qa_2704.json")
             image_path = os.path.join(dataset_path,"open-ended-qa_2704")
             print(json_path)
         else:
-            json_path = os.path.join(dataset_path, "closed-ended-qa_6823.json") # "/data_hdd/syliu/workspace/Med-VLM/Datasets/OmniBrainBench/closed-ended-qa_6823.json"
+            json_path = os.path.join(dataset_path, "closed-ended-qa_6823.json")
             image_path = os.path.join(dataset_path,"closed-ended-qa_6823")
         with open(json_path,"r") as f:
             datas = json.load(f)
