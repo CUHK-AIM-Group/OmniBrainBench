@@ -21,13 +21,14 @@ from utils import (
     IU_XRAY,
     CheXpert_Plus,
     MIMIC_CXR,
-    MedFrameQA
+    MedFrameQA,
+    OmniBrainBench
     )
 
 #eval_MedQA_USMLE
 def prepare_benchmark(model,eval_dataset,eval_dataset_path,eval_output_path):
     # Hallu,Geometry3k
-    supported_dataset = ["MMMU-Medical-test","MMMU-Medical-val","PATH_VQA","PMC_VQA","VQA_RAD","SLAKE","MedQA_USMLE","MedMCQA","PubMedQA","OmniMedVQA","Medbullets_op4","Medbullets_op5","MedXpertQA-Text","MedXpertQA-MM","SuperGPQA""HealthBench","IU_XRAY","CheXpert_Plus","MIMIC_CXR","CMB","CMExam","CMMLU","MedQA_MCMLE","MedFrameQA"]
+    supported_dataset = ["MMMU-Medical-test","MMMU-Medical-val","PATH_VQA","PMC_VQA","VQA_RAD","SLAKE","MedQA_USMLE","MedMCQA","PubMedQA","OmniMedVQA","Medbullets_op4","Medbullets_op5","MedXpertQA-Text","MedXpertQA-MM","SuperGPQA""HealthBench","IU_XRAY","CheXpert_Plus","MIMIC_CXR","CMB","CMExam","CMMLU","MedQA_MCMLE","MedFrameQA", "OmniBrainBench", "OmniBrainBench-Open"]
 
     if eval_dataset in ["MMMU-Medical-test", "MMMU-Medical-val"]:
         if eval_dataset_path:
@@ -106,7 +107,13 @@ def prepare_benchmark(model,eval_dataset,eval_dataset_path,eval_output_path):
     
     elif eval_dataset == "MedFrameQA":
         dataset = MedFrameQA(model,eval_dataset_path,eval_output_path)
-
+    
+    elif eval_dataset.startswith("OmniBrainBench"):
+        if eval_dataset == "OmniBrainBench-Open":
+            eval_dataset_path = eval_dataset_path.replace(eval_dataset,"OmniBrainBench")
+            dataset = OmniBrainBench(model, eval_dataset_path, eval_output_path, openset=True)
+        else:   
+            dataset = OmniBrainBench(model,eval_dataset_path,eval_output_path, openset=False)
     else:
         print(f"unknown eval dataset {eval_dataset}, we only support {supported_dataset}")
         dataset = None

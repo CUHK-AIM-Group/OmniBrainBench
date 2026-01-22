@@ -21,3 +21,4 @@ from .IU_XRAY.IU_XRAY import IU_XRAY
 from .CheXpert_Plus.CheXpert_Plus import CheXpert_Plus
 from .MIMIC_CXR.MIMIC_CXR import MIMIC_CXR
 from .MedFrameQA.MedFrameQA import MedFrameQA
+from .OmniBrainBench.OmniBrainBench import OmniBrainBench
