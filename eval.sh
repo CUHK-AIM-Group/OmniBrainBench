@@ -1,7 +1,7 @@
 #!/bin/bash
 # export HF_ENDPOINT=https://hf-mirror.com
-export HF_HOME=/data_hdd/syliu/workspace/Med-VLM/hf-checkpoints
-export HF_DATASETS_CACHE=/data_hdd/syliu/workspace/Med-VLM/Datasets
+export HF_HOME='your_huggingface_home_directory'
+export HF_DATASETS_CACHE='your_huggingface_datasets_cache_directory'
 
 # if use close-set evaluation, set your openai api key and base url here
 export OPENAI_API_KEY="your_openai_api_key"
@@ -9,7 +9,7 @@ export OPENAI_BASE_URL="your_openai_base_url"
 
 #if close-set evaluation: OmniBrainBench, if open-set evaluation: OmniBrainBench-Open
 EVAL_DATASETS="OmniBrainBench-Open"
-DATASETS_PATH="/data_hdd/syliu/workspace/Med-VLM/Datasets/"
+DATASETS_PATH="base_path_of_OmniBrainBench_datasets"
 
 #For open-source models, you can choose from the following models:
 #TestModel,Qwen3-VL, Qwen3-VL-Moe, Qwen2-VL,Qwen2.5-VL,BiMediX2,LLava_Med,Huatuo,InternVL,Llama-3.2,LLava,Janus,BiomedGPT,Vllm_Text,MedGemma,Med_Flamingo,MedDr,Hulumed-qwen3, Hulumed-qwen2.
@@ -38,7 +38,7 @@ REPETITION_PENALTY=1
 # LLM judge setting
 USE_LLM_JUDGE="True"
 # gpt api model name
-GPT_MODEL="gpt-5-mini-2025-08-07"
+GPT_MODEL="gpt-4"
 OPENAI_API_KEY="your_openai_api_key"
 
 # pass hyperparameters and run python sccript
