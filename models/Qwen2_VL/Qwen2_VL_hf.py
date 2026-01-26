@@ -1,19 +1,18 @@
 from transformers import AutoProcessor
 from qwen_vl_utils import process_vision_info
 from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor
-
+import torch
 class Qwen2VL:
     def __init__(self,model_path,args):
         super().__init__()
         self.llm = Qwen2VLForConditionalGeneration.from_pretrained(
-        model_path, torch_dtype=torch.bfloat16, device_map="cuda",attn_implementation="flash_attention_2")
+        model_path, torch_dtype=torch.float16, device_map="auto",attn_implementation="flash_attention_2")
         self.processor = AutoProcessor.from_pretrained(model_path)
 
         self.temperature = args.temperature
         self.top_p = args.top_p
         self.repetition_penalty = args.repetition_penalty
         self.max_new_tokens = args.max_new_tokens
-
 
     def process_messages(self,messages):
         new_messages = []
@@ -43,7 +42,7 @@ class Qwen2VL:
             videos=video_inputs,
             padding=True,
             return_tensors="pt",
-)
+        )
         inputs = inputs.to("cuda")
 
         return inputs

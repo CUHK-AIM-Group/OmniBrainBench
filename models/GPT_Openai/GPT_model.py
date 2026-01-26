@@ -7,8 +7,8 @@ from openai import OpenAI
 import threading
 import weakref
 
-key = os.environ.get("openai_api_key")
-baseurl = os.environ.get("openai_base_url")
+key = os.environ.get("OPENAI_API_KEY")
+baseurl = os.environ.get("OPENAI_BASE_URL")
 
 class GPT_model:
     _instances = weakref.WeakSet()  # 跟踪所有实例
@@ -35,8 +35,7 @@ class GPT_model:
         self.timeout = getattr(args, 'timeout', 300)  # 默认300秒超时
         self.max_retries = getattr(args, 'max_retries', 3)  # 最大重试次数
         self.retry_delay = getattr(args, 'retry_delay', 5)  # 重试间隔秒数
-        
-        # Initialize OpenAI client with timeout
+    
         try:
             self.client = OpenAI(
                 api_key=key,

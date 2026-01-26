@@ -8,7 +8,7 @@ export OPENAI_API_KEY="your_openai_api_key"
 export OPENAI_BASE_URL="your_openai_base_url"
 
 #if close-set evaluation: OmniBrainBench, if open-set evaluation: OmniBrainBench-Open
-EVAL_DATASETS="OmniBrainBench-Open"
+EVAL_DATASETS="OmniBrainBench"
 DATASETS_PATH="base_path_of_OmniBrainBench_datasets"
 
 #For open-source models, you can choose from the following models:
@@ -39,7 +39,6 @@ REPETITION_PENALTY=1
 USE_LLM_JUDGE="True"
 # gpt api model name
 GPT_MODEL="gpt-4"
-OPENAI_API_KEY="your_openai_api_key"
 
 # pass hyperparameters and run python sccript
 python eval.py \

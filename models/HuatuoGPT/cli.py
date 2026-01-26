@@ -32,7 +32,7 @@ class HuatuoChatbot():
         if 'huatuogpt-vision-7b' in d.lower():
             print(f'loading from {self.model_dir}')
             from .model.language_model.llava_qwen2 import LlavaQwen2ForCausalLM
-            model, loading_info = LlavaQwen2ForCausalLM.from_pretrained(self.model_dir, init_vision_encoder_from_ckpt=True, output_loading_info=True, torch_dtype=torch.bfloat16)
+            model, loading_info = LlavaQwen2ForCausalLM.from_pretrained(self.model_dir, init_vision_encoder_from_ckpt=True, output_loading_info=True, torch_dtype=torch.bfloat16, device_map='auto')
             missing_keys = loading_info['missing_keys'] # keys exists in model architecture but does not exist in ckpt
             unexpected_keys = loading_info['unexpected_keys'] # keys exists in ckpt but are not loaded by the model 
             assert all(['vision_tower' in k for k in unexpected_keys])
@@ -51,7 +51,7 @@ class HuatuoChatbot():
         elif 'huatuogpt' in d.lower():
             print(f'loading from {self.model_dir}')
             from .model.language_model.llava_llama import LlavaLlamaForCausalLM
-            model, loading_info = LlavaLlamaForCausalLM.from_pretrained(self.model_dir, init_vision_encoder_from_ckpt=True, output_loading_info=True, torch_dtype=torch.bfloat16)
+            model, loading_info = LlavaLlamaForCausalLM.from_pretrained(self.model_dir, init_vision_encoder_from_ckpt=True, output_loading_info=True, torch_dtype=torch.bfloat16, device_map='auto')
             missing_keys = loading_info['missing_keys'] # keys exists in model architecture but does not exist in ckpt
             unexpected_keys = loading_info['unexpected_keys'] # keys exists in ckpt but are not loaded by the model 
             assert all(['vision_tower' in k for k in unexpected_keys])
@@ -64,14 +64,14 @@ class HuatuoChatbot():
             if not vision_tower.is_loaded:
                 vision_tower.load_model()
                 vision_tower.vision_tower = vision_tower.vision_tower.from_pretrained(self.model_dir)
-            vision_tower.to(dtype=torch.bfloat16, device=model.device)
+            vision_tower.to(dtype=torch.bfloat16)
             image_processor = vision_tower.image_processor
 
         else:
             raise NotImplementedError
 
         model.eval()
-        self.model = model.to(self.device)
+        self.model = model
         self.model.config.tokenizer_padding_side = 'left'
         self.tokenizer = tokenizer
         self.processor = image_processor
