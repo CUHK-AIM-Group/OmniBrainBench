@@ -20,6 +20,7 @@
 This repository is the official implementation of the paper **OmniBrainBench: A Comprehensive Multimodal Benchmark for Brain Imaging Analysis Across Multi-stage Clinical Tasks**.
 
 ## ✨ News
+- [02/2026] Our OmniBrainBench is accepted by CVPR2026!
 - [12/2025] We have released the evaluation [code](https://github.com/CUHK-AIM-Group/OmniBrainBench) and [dataset](https://huggingface.co/datasets/FrankPN/OmniBrainBench) for **OmniBrainBench**.
 - [11/2025] The manuscript can be found on [arXiv](https://arxiv.org/abs/2511.00846).
 
