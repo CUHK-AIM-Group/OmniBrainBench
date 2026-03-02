@@ -8,7 +8,7 @@
 
 [🤖 **Homepage**](https://cuhk-aim-group.github.io/OmniBrainBench.github.io/) | [**🤗 Dataset**](https://huggingface.co/datasets/FrankPN/OmniBrainBench) | [**📖 Paper**](https://arxiv.org/abs/2511.00846)
 
-[Zhihao Peng](https://zhihaopeng-cityu.github.io/ZhihaoPENG_homepage/)<sup>1*</sup> [Cheng Wang](https://scholar.google.com/citations?user=AM7gvyUAAAAJ&hl=en)<sup>1*</sup> [Shengyuan Liu](https://scholar.google.com/citations?user=zP6fRqcAAAAJ&hl=en)<sup>2*</sup> Zhiying Liang<sup>2*</sup> Zanting Ye<sup>3</sup> Min Jie Ju<sup>4</sup> Peter YM Woo<sup>5</sup> [Yixuan Yuan](https://www.ee.cuhk.edu.hk/~yxyuan/people/people.htm)<sup>1✉</sup> , 
+[Zhihao Peng](https://zhihaopeng-cityu.github.io/ZhihaoPENG_homepage/)<sup>1*</sup> [Cheng Wang](https://scholar.google.com/citations?user=AM7gvyUAAAAJ&hl=en)<sup>1*</sup> [Shengyuan Liu](https://scholar.google.com/citations?user=zP6fRqcAAAAJ&hl=en)<sup>1*</sup> Zhiying Liang<sup>2*</sup> Zanting Ye<sup>3</sup> Min Jie Ju<sup>4</sup> Peter YM Woo<sup>5</sup> [Yixuan Yuan](https://www.ee.cuhk.edu.hk/~yxyuan/people/people.htm)<sup>1✉</sup> , 
 
 <sup>1</sup>Chinese University of Hong Kong &emsp; 
 <sup>2</sup>Sun Yat-sen Memorial Hospital, Sun Yat-sen University &emsp;
