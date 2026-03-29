@@ -11,7 +11,57 @@ In this folder, we provide tutorials to generate **OmniBrainBench-Extend labels*
 
 - [x] ADNI
 - [ ] UKB
-- [ ] Generate VQA pairs (patient-level multi-task)
+- [x] Generate VQA pairs (patient-level multi-task)
+
+---
+
+## Quick Usage (Three Scripts)
+
+Run the following commands under this folder (`data/omnibrainbench_extend`):
+
+### 1) Reorganize ADNI and convert DICOM to NIfTI
+
+```bash
+python reorganize_adni.py --cmd dcm2niix
+```
+
+If you also want to remove the original modality/date folders after successful conversion:
+
+```bash
+python reorganize_adni.py --cmd dcm2niix --cleanup
+```
+
+### 2) Generate task label files (task1-task5)
+
+```bash
+python generate_adni_task_files.py --root . --outdir task_outputs
+```
+
+By default, this command **does not execute** task1 (FreeSurfer) or task4 (WMH) segmentation jobs; it only checks eligibility and writes CSV/shell commands.
+
+Run task1 now:
+
+```bash
+python generate_adni_task_files.py --root . --outdir task_outputs --run-task1
+```
+
+Run task4 now:
+
+```bash
+python generate_adni_task_files.py --root . --outdir task_outputs --run-task4
+```
+
+Run task1 and task4 together:
+
+```bash
+python generate_adni_task_files.py --root . --outdir task_outputs --run-task1 --run-task4
+```
+
+### 3) Generate VQA pairs from task outputs
+
+```bash
+python generate_vqa_from_tasks.py --task-dir task_outputs --outdir vqa_outputs
+```
 
 ---
 
